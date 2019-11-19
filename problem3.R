@@ -5,27 +5,29 @@
 #
 # What is the largest prime factor of the number 600851475143?
 
-isPrime = function(x){
-  if (x%%2 != 0 & x%%3 != 0 & x%%5 != 0 & x%%7 != 0){
-    return(T)
-  } else {
-    return(F)
-  }
-}
+isPrime = function(x) prod(x %% 2:(x-1)) != 0
 
 N = 600851475143
-n = N - 1
+n = 29
 flag = T
-###### NOT WORKING YEY
+
+res = c()
+i = 1
+
 t0 = Sys.time()
 while(flag){
-  if (N%%n == 0 & isPrime(n)){
-    print(n)
-    flag = F
-  } else {
-    n = n - 1
+  if (N %% n == 0)
+  {
+    if (isPrime(n))
+    {
+      res[i] = n
+      i = i + 1
+    }
   }
+  n = n + 1
+  
+  if (prod(res) == N) flag = F
 }
 print(Sys.time() - t0)
 
-###### NOT WORKING YEY
+print(res[length(res)])
