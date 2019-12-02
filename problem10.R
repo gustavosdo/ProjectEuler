@@ -4,7 +4,7 @@
 
 isPrime = function(x) prod(x %% 2:(x-1)) != 0
 
-sum = 0
+sum = 2
 flag = F
 
 t0 = Sys.time()
