@@ -22,29 +22,32 @@
 # Solution: --------------------------------------------------------------------
 
 # Find factors function
-find_factors = function(num) {
-  # Parallelism setup
-  library(doParallel)
-  library(parallel)
-  library(foreach)
-  cores = 60
-  cl = makeCluster(min(cores, detectCores() - 1), outfile = "")
-  registerDoParallel(cl)
-  # Usual factors
-  default = c(1, num)
-  factors = foreach (i = 2:num-1, .combine = "c") %dopar% {
+find_factors = function(num, verbose = T, tol = 1000) {
+  factors_length = 1
+  for (i in floor(sqrt(num)):1) {
+    if ((verbose) & (i%%tol == 0)) print(paste("Testing", i))
     if (num%%i == 0) {
-      return(i)
+      factors_length = factors_length + 1
+      if (verbose) print(paste("Number of factors (so far):", factors_length))
     }
   }
-  factors = c(default, factors)
-  factors = factors[order(factors)]
-  return(unique(factors))
+  return(factors_length)
+}
+
+# Triangle number function
+triangle_num = function(j) {
+  return(sum(1:j))
 }
 
 # Starting with 7th triangle number
-n = 7; t = sum(1:n)
+n = 7
 
-while(len(find_factors(n)) <= 500) {
-  
+t0 = Sys.time()
+
+while(find_factors(triangle_num(n), verbose = F, tol = 1000) <= 500) {
+  n = n + 1
 }
+
+message('Solver time: ', format(Sys.time() - t0, digits = 2))
+
+print(n)
