@@ -23,11 +23,11 @@
 
 # Find factors function
 find_factors = function(num, verbose = T, tol = 1000) {
-  factors_length = 1
+  factors_length = 0
   for (i in floor(sqrt(num)):1) {
     if ((verbose) & (i%%tol == 0)) print(paste("Testing", i))
     if (num%%i == 0) {
-      factors_length = factors_length + 1
+      factors_length = factors_length + 2
       if (verbose) print(paste("Number of factors (so far):", factors_length))
     }
   }
@@ -50,4 +50,4 @@ while(find_factors(triangle_num(n), verbose = F, tol = 1000) <= 500) {
 
 message('Solver time: ', format(Sys.time() - t0, digits = 2))
 
-print(n)
+print(triangle_num(n))
