@@ -23,12 +23,21 @@
 
 # Find factors function
 find_factors = function(num) {
-  factors = c(1, num)
-  for (i in 2:num-1) {
+  # Parallelism setup
+  library(doParallel)
+  library(parallel)
+  library(foreach)
+  cores = 60
+  cl = makeCluster(min(cores, detectCores() - 1), outfile = "")
+  registerDoParallel(cl)
+  # Usual factors
+  default = c(1, num)
+  factors = foreach (i = 2:num-1, .combine = "c") %dopar% {
     if (num%%i == 0) {
-      factors = c(factors, i)
+      return(i)
     }
   }
+  factors = c(default, factors)
   factors = factors[order(factors)]
   return(unique(factors))
 }
