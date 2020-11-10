@@ -204,4 +204,6 @@ num_str = "37107287533902102798797998220837590246510135740250
 53503534226472524250874054075591789781264330331690"
 
 # Removing line returns
-num_str = gsub("[\r\n]", "", num_str)
+nums = as.numeric(unlist(strsplit(num_str, "\n")))
+
+res = sum(nums)
