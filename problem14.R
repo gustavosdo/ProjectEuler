@@ -14,50 +14,64 @@
 #   
 # NOTE: Once the chain starts the terms are allowed to go above one million.
 
-# Progress bar 
+# Progress bar library
 library(progress)
 
+# Initial time of processing
 t0 = Sys.time()
 
-max_n = 1e6
+# Maximum number of n (in the example above, 13)
+max_n = 4e5
 
+# Length of chain: for 1 it is simply one, 
 all_lengths = c(1, 2)
 
+# Setting up the progress bar
 pb <- progress::progress_bar$new(
   format = "Loop [:bar] :percent in :elapsed",
   total = (max_n - 2), clear = FALSE, width= 70)
 
+# Starting loop of n (3 to above)
 for (n_start in 3:max_n) {
+  # progress bar call
   pb$tick()
+  # starting n
   n = n_start
+  # Starting length of chain for integer n
   length_chain = 0
+  # building up the chain from n_start to 1
   while (n != 1) {
+    # checking parity
     if (((n %% 2) == 0)) {
+      # checking if it is a power of 2
       if (log2(n) == trunc(log2(n))) {
-        n = 1
+        # adding power of 2 to length_chain
         length_chain = length_chain + log2(n)
+        n = 1
       } else {
-        n = n/2
+        # Applying collatz even number rule
         length_chain = length_chain + 1
+        n = n/2
       }
     } else {
-      n = 3*n + 1
+      # Applying collatz odd number rule
       length_chain = length_chain + 1
+      n = 3*n + 1
     }
-    if (n %in% 1:n_start) {
-      n = 1
+    # Searching for previous results in order to speed-up the processing
+    if (n %in% 1:length(all_lengths)) {
       length_chain = length_chain + all_lengths[n]
+      n = 1
     }
   }
+  # Adding total length to list of lengths
   all_lengths = c(all_lengths, length_chain)
 }
 
+# Printing results
 message("Maximum index: ", max_n)
-
 message('Solver time: ', format(Sys.time() - t0, digits = 2))
-
 message("Maximum length index: ", (1:max_n)[all_lengths == max(all_lengths)])
-
 
 # Quadratic fit ----------------------------------------------------------------
 # x = c(10, 100, 1000, 10000, 100000, 2e5, 2e4, 4e4, 6e4)
