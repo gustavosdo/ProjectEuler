@@ -21,20 +21,32 @@ library(progress)
 t0 = Sys.time()
 
 # Maximum number of n (in the example above, 13)
-max_n = 4e5
+max_n = 1e6
 
 # Length of chain: for 1 it is simply one, 
 all_lengths = c(1, 2)
 
-# Setting up the progress bar
+# Parallelism setup
+library(doParallel)
+library(parallel)
+library(foreach)
+cores = 63
+cl = makeCluster(min(cores, detectCores() - 1), outfile = '/dev/null')
+registerDoParallel(cl)
+
+# Setting Progress Bar
 pb <- progress::progress_bar$new(
   format = "Loop [:bar] :percent in :elapsed",
-  total = (max_n - 2), clear = FALSE, width= 70)
+  total = (max_n - 2), clear = FALSE, width = 70)
+progress_number = 3:max_n
+progress = function(n){pb$tick(tokens = list(sp = progress_number[n]))}
+opts <- list(progress = progress)
 
 # Starting loop of n (3 to above)
-for (n_start in 3:max_n) {
+all_lengths = foreach (n_start = 3:max_n, .packages = c('progress'),
+                       .combine = 'c',.options.snow = opts) %dopar% {
   # progress bar call
-  pb$tick()
+  #pb$tick()
   # starting n
   n = n_start
   # Starting length of chain for integer n
@@ -58,14 +70,14 @@ for (n_start in 3:max_n) {
       length_chain = length_chain + 1
       n = 3*n + 1
     }
-    # Searching for previous results in order to speed-up the processing
-    if (n %in% 1:length(all_lengths)) {
-      length_chain = length_chain + all_lengths[n]
-      n = 1
-    }
+    # # Searching for previous results in order to speed-up the processing
+    # if (n %in% 1:length(all_lengths)) {
+    #   length_chain = length_chain + all_lengths[n]
+    #   n = 1
+    # }
   }
   # Adding total length to list of lengths
-  all_lengths = c(all_lengths, length_chain)
+  return(length_chain)
 }
 
 # Printing results
@@ -73,11 +85,11 @@ message("Maximum index: ", max_n)
 message('Solver time: ', format(Sys.time() - t0, digits = 2))
 message("Maximum length index: ", (1:max_n)[all_lengths == max(all_lengths)])
 
-# Quadratic fit ----------------------------------------------------------------
-# x = c(10, 100, 1000, 10000, 100000, 2e5, 2e4, 4e4, 6e4)
-# y = c(0.015, 0.016, 0.043, 0.39, 17, 132, 2.4, 6.2, 13)
+# Quadratic fit (without parallelism) ------------------------------------------
+# x = c(10, 100, 1000, 10000, 100000, 2e5, 2e4, 4e4, 6e4, 4e5)
+# y = c(0.015, 0.016, 0.043, 0.39, 17, 132, 2.4, 6.2, 13, 2520)
 # data = data.frame(x, y)
 # fit = lm(formula = y ~ x + x^2, data = data)
 # 
 # new = data.frame(x = c(1e6))
-# pred3 = predict(fit, new) # result: 2.9 min
+# pred3 = predict(fit, new) # result: 1h30min
