@@ -77,8 +77,8 @@ mat_exc = matrix(exc[1:(length(triangle)*length(exc_start))], ncol = length(mode
 # The right-hand-side for these lines are all 1 (rep(1, nrow(mat_exc)))
 # To be added later in the rhs parameter of Linear Programming solver
 
-# Path unicity and neighbourhood: the path must be choosen looking for neighbor cells
-# Finding primary number and its neighbours
+# Path unity and neighborhood: the path must be chosen looking for neighbor cells
+# Finding primary number and its neighbors
 uni = c()
 while(length(uni) < length(model$obj) - length(triangle)) {
   for (r in 1:(length(triangle) - 1)) {
@@ -102,10 +102,9 @@ mat_uni = matrix(unlist(uni, recursive = T), ncol = length(model$obj), byrow = T
 mat = rbind(mat_exc, mat_uni)
 
 model$modelsense = "max"
-model$A = mat #as(mat, 'sparseMatrix')
-#model$rhs = c(rep(1, nrow(mat_exc)), rep(0, nrow(mat_uni)))
+model$A = mat
 model$rhs = rep(1, nrow(mat))
-model$sense = c(rep("=", nrow(mat_exc)), rep("<=", nrow(mat_uni))) #rep('=', nrow(mat))
+model$sense = c(rep("=", nrow(mat_exc)), rep("<=", nrow(mat_uni)))
 
 gurob = gurobi::gurobi(model = model, params = list(LogToConsole = 0))
 
